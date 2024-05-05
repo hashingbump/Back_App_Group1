@@ -9,6 +9,14 @@ const postSchema = new mongoose.Schema({
     album:[{
         type: String
     }],
+    comments:[{
+        cmtId: String,
+        postId:String,
+        userCmtId: String,
+        avatarCmt: String,
+        userNameCmt: String,
+        content: String
+    }],
     createdAt: {
         type: Date,
         default: Date.now

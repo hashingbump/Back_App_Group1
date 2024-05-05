@@ -112,6 +112,19 @@ const usersController = {
             res.status(500).send({ message: error });
         }
     },
+    getUser: async (req, res) => {
+        try {
+            const token = req.headers.authorization.split(' ')[1];
+
+            const decodedToken = jwt.verify(token, 'hoan');
+
+            const user = await UsersModel.findById(decodedToken.userId);
+
+            res.json({data: {userName: user.userName, avatar: user.avatar}});
+        } catch (error) {
+            res.status(500).send({ message: error });
+        }
+    },
     deleteAllUser: async (req, res) => {
         try {
             const result = await UsersModel.deleteMany();

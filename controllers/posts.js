@@ -100,15 +100,9 @@ const postsController = {
     getAllPosts: async (req, res) => {
         try {
             let posts = await PostsModel.find();
-//            let post = [];
-
+            
             if(!posts)
                 throw new Error('Lay post that bai');
-
-            // for(let i=0; i<posts.length; i++){
-            //     const res = await UsersModel.findById(posts[i].userId);
-            //     if(res) post.push(posts[i]);
-            // }
 
             res.status(200).send({ data: posts });
     
@@ -153,24 +147,6 @@ const postsController = {
             return res.status(200).send({ message: "Xóa tat ca dữ liệu user thành công" });
         } catch (error) {
             res.status(500).send({ message: "Đã có lỗi xảy ra khi xóa người dùng" });
-        }
-    },
-    getposts_3comments: async (req, res) => {
-        try {
-            let allPosts = await PostsModel.find().lean(); // đổi thành JavaScript object
-    
-            if (!allPosts)
-                throw new Error('Không tìm thấy bài viết');
-    
-            for (let post of allPosts) {
-                const comments = await CommentsModel.find({ post: post._id }).limit(3).lean();
-
-                post.comments = comments.map(comment => comment.content);
-            }
-            res.status(200).send({ data: allPosts });
-    
-        } catch (error) {
-            res.status(500).send({ message: 'Lỗi server nội bộ: ' + error.message });
         }
     },
     getposts_comments: async (req, res) => {
@@ -243,14 +219,6 @@ const postsController = {
                 currentPage: page,
                 totalPages: totalPages
             });
-        } catch (error) {
-            res.status(400).send({ message: error.message });
-        }
-    },
-    deleteAllPosts: async (req, res) => {
-        try {
-            await PostsModel.deleteMany({});
-            res.status(200).send({ message: "Xóa tất cả bài post thành công." });
         } catch (error) {
             res.status(400).send({ message: error.message });
         }

@@ -1,30 +1,24 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import userRouter from './routes/users.js';
+import connectDatabase from './database/connectDB.js';
+import usersController from './controllers/users.js';
+import authMiddleware from './middlewares/auth.js';
 import cors from 'cors';
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-let database;
+connectDatabase.DB();
 
-async function connectDatabase() {
-    try {
-        await mongoose.connect('mongodb+srv://vtk:vtk@naksu.8wtkqy5.mongodb.net/?retryWrites=true&w=majority&appName=naksu');
-        console.log('Connect toi DB thanh cong');
-        database = mongoose.connection.useDb('test');
-    } catch (error) {
-        console.log("Error: ", error);
-    }
-}
+app.use('/users/add', usersController.createNewUser);
 
-connectDatabase(); 
+app.use('/users/login', authMiddleware.loginUser);
 
-app.use('/users', userRouter);
+app.use('/users', authMiddleware.authenticate, userRouter);
 
-app.use((req, res, next) => {
-    res.status(404).send("Page not found");
+app.use((req, res) => {
+    res.status(404).send("Url không đúng!");
 });
 
 app.listen(3000, () => {

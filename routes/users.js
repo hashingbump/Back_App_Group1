@@ -3,20 +3,19 @@ import multer from 'multer';
 import usersController from '../controllers/users.js';
 import postsController from '../controllers/posts.js';
 import commentsController from '../controllers/comments.js';
-import authMiddleware from '../middlewares/auth.js';
 
 const userRouter = Router();
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-userRouter.post('/add', usersController.createNewUser);
-
 userRouter.post('/update', upload.single('file'), usersController.updateUser);
 
 userRouter.post('/delete', usersController.deleteUser);
 
 userRouter.get('/id', usersController.getUserId);
+
+userRouter.get('/user', usersController.getUser);
 
 //userRouter.get('/deleteAll', usersController.deleteAllUser);
 
@@ -32,14 +31,12 @@ userRouter.post('/posts/delete/:postId', postsController.deletePost);
 
 //userRouter.get('/posts/deleteAll', postsController.deleteAllPosts);
 
-userRouter.post('/verifyToken', authMiddleware.authenticate);
+userRouter.post('/comments/add', commentsController.createNewComment);
 
-userRouter.post('/addAccessToken', authMiddleware.addAccessToken);
+userRouter.post('/comments/:commentId', commentsController.updateComment);
 
-userRouter.post('/addRefreshToken', authMiddleware.addRefreshToken);
+userRouter.post('/comments/delete/:commentId', commentsController.deleteComment);
 
-userRouter.post('/refreshToken/delete', authMiddleware.deleteRefreshToken);
-
-userRouter.post('/login', authMiddleware.loginUser);
+//userRouter.get('/comments/deleteAll', commentsController.deleteAllComments);
 
 export default userRouter;
