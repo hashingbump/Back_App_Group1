@@ -1,7 +1,7 @@
 import express from 'express';
-import userRouter from './routes/users.js';
+import staffRouter from './routes/staff.js';
 import connectDatabase from './database/connectDB.js';
-import usersController from './controllers/users.js';
+import staffsController from './controllers/staff.js';
 import authMiddleware from './middlewares/auth.js';
 import cors from 'cors';
 
@@ -11,11 +11,11 @@ app.use(cors());
 
 connectDatabase.DB();
 
-app.use('/users/add', usersController.createNewUser);
+app.use('/users/add', staffsController.createNewUser);
 
 app.use('/users/login', authMiddleware.loginUser);
 
-app.use('/users', authMiddleware.authenticate, userRouter);
+app.use('/users', authMiddleware.authenticate, staffRouter);
 
 app.use((req, res) => {
     res.status(404).send("Url không đúng!");

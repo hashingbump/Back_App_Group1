@@ -3,6 +3,7 @@ const Collections={
     POSTS: 'posts',
     COMMENTS: 'comments',
     ADMINS: 'admins',
+    STAFFS: 'staffs',
     ALBUMS: 'albums',
     REFRESHTOKENS: 'refreshTokens',
 }

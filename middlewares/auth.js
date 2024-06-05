@@ -1,4 +1,4 @@
-import UsersModel from "../model/users.js";
+import StaffsModel from "../model/staff.js";
 import refreshTokensModel from '../model/refreshTokens.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -8,7 +8,7 @@ const authMiddleware = {
         try {
             const { email, password } = req.body;
 
-            const user = await UsersModel.findOne({ email });
+            const user = await StaffsModel.findOne({ email });
 
             if (!user) throw new Error('Tài khoản không tồn tại');
 
