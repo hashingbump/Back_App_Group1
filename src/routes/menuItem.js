@@ -5,7 +5,7 @@ const MenuRouter = express.Router();
 MenuRouter.post("/", validateMenuItem, menuController.createMenuItem);
 MenuRouter.get("/", menuController.getAllMenuItems);
 MenuRouter.get("/:id", menuController.getMenuItemById);
-MenuRouter.put("/:id", menuController.updateMenuItemById);
+MenuRouter.put("/:id", validateMenuItem, menuController.updateMenuItemById);
 MenuRouter.delete("/:id", menuController.deleteMenuItemById);
 
 export default MenuRouter;

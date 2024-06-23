@@ -2,6 +2,12 @@ import MenuItem from "../models/menuItem.js";
 
 const createMenuItem = async (req, res) => {
   try {
+    // const existingMenuItem = await MenuItem.findOne(req.code);
+    // if (existingMenuItem) {
+    //   return res
+    //     .status(409)
+    //     .json({ message: "User restaurant already exists" });
+    // }
     const newItem = new MenuItem(req.body);
     await newItem.save();
     res.status(201).json(newItem);
