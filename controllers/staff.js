@@ -1,126 +1,121 @@
-import StaffsModel from '../model/staff.js';
-import {checkNullOrUndefined} from '../checkInput.js';
-import bcrypt from 'bcrypt';
-import cloudinary from 'cloudinary';
-import jwt from 'jsonwebtoken';
+import StaffsModel from '../model/staff.js'
+import { checkNullOrUndefined } from '../checkInput.js'
+import bcrypt from 'bcrypt'
+import cloudinary from 'cloudinary'
+import jwt from 'jsonwebtoken'
 
 cloudinary.config({
-    cloud_name: 'dsahpruxx',
-    api_key: '652186324369761',
-    api_secret: 'GwjubyXq017h99uVYnb9tk14YKo'
-});
+  cloud_name: 'dsahpruxx',
+  api_key: '652186324369761',
+  api_secret: 'GwjubyXq017h99uVYnb9tk14YKo'
+})
 
 const staffsController = {
-    createNewUser: async (req, res) => {
-        try {
-            const { userName, sex, email, password } = req.body;
-    
-            if (checkNullOrUndefined(req.body))
-                throw new Error('Dữ liệu đầu vào có lỗi');
-            
-            const existEmail = await StaffsModel.findOne({ email });
-            if (existEmail)
-                throw new Error('Email đã tồn tại');
-    
-            const salt = bcrypt.genSaltSync(10);
-            const hashedPassword = bcrypt.hashSync(password, salt);
-    
-            const createdUser = await StaffsModel.create({
-                userName,
-                avatar:'https://res.cloudinary.com/dsahpruxx/image/upload/v1713218734/doov6xt6wbzqk5tgdsql.png',
-                sex,
-                email,
-                password: hashedPassword
-            });
-    
-            res.status(201).send({ data: createdUser });
-        } catch (error) {
-            res.status(403).send({ message: error.message });
-        }
-    },
-    updateStaff: async (req, res) => {
-        try {
-            const {userName, password} = req.body;
-            const file = req.file;
+  createNewUser: async (req, res) => {
+    try {
+      const { userName, sex, email, password } = req.body
 
-            const token = req.headers.authorization.split(' ')[1];
+      if (checkNullOrUndefined(req.body)) throw new Error('Dữ liệu đầu vào có lỗi')
 
-            const decodedToken = jwt.verify(token, 'hoan');
-            const user = await StaffsModel.findById(decodedToken.userId);
+      const existEmail = await StaffsModel.findOne({ email })
+      if (existEmail) throw new Error('Email đã tồn tại')
 
-            const isPasswordValid = await bcrypt.compare(password, user.password);
+      const salt = bcrypt.genSaltSync(10)
+      const hashedPassword = bcrypt.hashSync(password, salt)
 
-            if (!isPasswordValid) throw new Error('Mật khẩu không đúng');
+      const createdUser = await StaffsModel.create({
+        userName,
+        avatar: 'https://res.cloudinary.com/dsahpruxx/image/upload/v1713218734/doov6xt6wbzqk5tgdsql.png',
+        sex,
+        email,
+        password: hashedPassword
+      })
 
-            const dataUrl = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
-            const fileName = file.originalname.split('.')[0];
-    
-            const result = await cloudinary.uploader.upload(dataUrl, {
-                public_id: fileName,
-                resource_type: 'auto',
-            });
-
-            user.userName = userName;
-            user.email = user.email;
-            user.sex = sex;
-            user.avatar = result.secure_url;
-            user.password = user.password;
-            await user.save();
-            
-            res.send({ data: 'Done' });
-        } catch (error) {
-            res.send({ data: 'Error' });
-        }
-    },
-    deleteStaff: async (req, res) => {
-        try {
-            const token = req.headers.authorization.split(' ')[1];
-
-            const decodedToken = jwt.verify(token, 'hoan');
-    
-            const result = await StaffsModel.deleteOne({ _id: decodedToken.userId });
-            
-            if (result.deletedCount === 1)
-                res.status(200).send({ message: "Xóa dữ liệu user thành công" });
-            else 
-                res.status(404).send({ message: "Không tìm thấy user để xóa" });
-
-        } catch (error) {
-            res.status(500).send({ message: error });
-        }
-    },
-    getStaffId: async (req, res) => {
-        try {
-            const token = req.headers.authorization.split(' ')[1];
-
-            const decodedToken = jwt.verify(token, 'hoan');
-
-            res.json({data: decodedToken.userId });
-        } catch (error) {
-            res.status(500).send({ message: error });
-        }
-    },
-    getStaff: async (req, res) => {
-        try {
-            const token = req.headers.authorization.split(' ')[1];
-
-            const decodedToken = jwt.verify(token, 'hoan');
-
-            const user = await StaffsModel.findById(decodedToken.userId);
-
-            res.json({data: {userName: user.userName, avatar: user.avatar}});
-        } catch (error) {
-            res.status(500).send({ message: error });
-        }
-    },
-    deleteAllStaff: async (req, res) => {
-        try {
-            const result = await StaffsModel.deleteMany();
-    
-            return res.status(200).send({ message: "Xóa tat ca dữ liệu user thành công" });
-        } catch (error) {
-            res.status(500).send({ message: "Đã có lỗi xảy ra khi xóa người dùng" });
-        }
+      res.status(201).send({ data: createdUser })
+    } catch (error) {
+      res.status(403).send({ message: error.message })
     }
+  },
+  updateStaff: async (req, res) => {
+    try {
+      const { userName, password } = req.body
+      const file = req.file
+
+      const token = req.headers.authorization.split(' ')[1]
+
+      const decodedToken = jwt.verify(token, 'hoan')
+      const user = await StaffsModel.findById(decodedToken.userId)
+
+      const isPasswordValid = await bcrypt.compare(password, user.password)
+
+      if (!isPasswordValid) throw new Error('Mật khẩu không đúng')
+
+      const dataUrl = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`
+      const fileName = file.originalname.split('.')[0]
+
+      const result = await cloudinary.uploader.upload(dataUrl, {
+        public_id: fileName,
+        resource_type: 'auto'
+      })
+
+      user.userName = userName
+      user.email = user.email
+      user.sex = sex
+      user.avatar = result.secure_url
+      user.password = user.password
+      await user.save()
+
+      res.send({ data: 'Done' })
+    } catch (error) {
+      res.send({ data: 'Error' })
+    }
+  },
+  deleteStaff: async (req, res) => {
+    try {
+      const token = req.headers.authorization.split(' ')[1]
+
+      const decodedToken = jwt.verify(token, 'hoan')
+
+      const result = await StaffsModel.deleteOne({ _id: decodedToken.userId })
+
+      if (result.deletedCount === 1) res.status(200).send({ message: 'Xóa dữ liệu user thành công' })
+      else res.status(404).send({ message: 'Không tìm thấy user để xóa' })
+    } catch (error) {
+      res.status(500).send({ message: error })
+    }
+  },
+  getStaffId: async (req, res) => {
+    try {
+      const token = req.headers.authorization.split(' ')[1]
+
+      const decodedToken = jwt.verify(token, 'hoan')
+
+      res.json({ data: decodedToken.userId })
+    } catch (error) {
+      res.status(500).send({ message: error })
+    }
+  },
+  getStaff: async (req, res) => {
+    try {
+      const token = req.headers.authorization.split(' ')[1]
+
+      const decodedToken = jwt.verify(token, 'hoan')
+
+      const user = await StaffsModel.findById(decodedToken.userId)
+
+      res.json({ data: { userName: user.userName, avatar: user.avatar } })
+    } catch (error) {
+      res.status(500).send({ message: error })
+    }
+  },
+  deleteAllStaff: async (req, res) => {
+    try {
+      const result = await StaffsModel.deleteMany()
+
+      return res.status(200).send({ message: 'Xóa tat ca dữ liệu user thành công' })
+    } catch (error) {
+      res.status(500).send({ message: 'Đã có lỗi xảy ra khi xóa người dùng' })
+    }
+  }
 }
-export default staffsController;
+export default staffsController

@@ -24,23 +24,38 @@ export const requireApiKey = async (req, res, next) => {
     const apiKey = req.headers.authorization.split(' ')[1]
     jwt.verify(apiKey, 'secret', async (err, decoded) => {
       if (err || !decoded) {
-        const exception = new ForbiddenRequestError('Invalid access')
-        res.status(exception.statusCode).send({ message: exception.message })
+        throw new ForbiddenRequestError('Invalid access')
       } else {
         const result = await UserService.authorize(decoded.data)
         if (CommonUtils.checkNullOrUndefined(result)) {
-          const exception = new NotFoundError('Invalid access')
-          res.status(exception.statusCode).send({ message: exception.message })
+          throw new NotFoundError('User not found')
         }
         req.user = {
           id: Types.ObjectId.createFromHexString(decoded.data),
-          mqtt: result.mqttusername,
-          key: result.AIO_Key
+          role: result.role
         }
         next()
       }
     })
   } catch (error) {
-    res.status(error.statusCode).send({ message: error.message })
+    Response(error.statusCode, error.message, null).resposeHandler(res)
+  }
+}
+
+export const authentication = async (req, res, next) => {
+  try {
+    if (
+      CommonUtils.checkNullOrUndefined(req.user) ||
+      CommonUtils.checkNullOrUndefined(req.user.role) ||
+      CommonUtils.checkNullOrUndefined(req.user.id)
+    ) {
+      throw new UnAuthorizedError('Invalid access')
+    }
+    if (req.user.role !== 'ADMIN') {
+      throw new ForbiddenRequestError('Invalid access')
+    }
+    next()
+  } catch (error) {
+    Response(error.statusCode, error.message, null).resposeHandler(res)
   }
 }

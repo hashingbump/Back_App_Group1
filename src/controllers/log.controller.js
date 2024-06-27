@@ -1,12 +1,14 @@
+import { HttpStatusCode } from 'axios'
+import { Response } from '../dto/out/response.js'
 import { LogService } from '../services/log.service.js'
 
 const getDataOnDate = async (req, res, next) => {
   try {
     const { date } = req.query
     const data = await LogService.getDataOnDate(date, req.user.id)
-    res.json(data)
+    Response(HttpStatusCode.Ok, 'Success', data).responseHandler(res)
   } catch (error) {
-    res.status(error.statusCode).json({ error: error.message })
+    Response(error.statusCode, error.message, error).responseHandler(res)
   }
 }
 

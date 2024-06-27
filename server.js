@@ -16,12 +16,14 @@ import { logRequestTime } from './src/middlewares/logRequestTime.middleware.js'
 import { logRequestMethod } from './src/middlewares/logRequestMethod.middleware.js'
 import { DATABASE_CONFIG } from './src/configs/database.config.js'
 import { requireApiKey } from './src/middlewares/useApiKey.middleware.js'
-
+import swaggerUi from 'swagger-ui-express'
+import swaggerJsdoc from 'swagger-jsdoc'
 const app = express()
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 // const server = createServer(app)
 // const io = new Server(server)
+
 const port = 3000
 app.use(
   cors({
@@ -44,16 +46,41 @@ app.use(json())
 app.use(express.static('public'))
 app.use(logRequestTime)
 app.use(logRequestMethod)
-
-// Route init
-app.use('/logs', requireApiKey, LogRouter)
 app.use('/restaurants', RestaurantRouter)
 app.use('/tables', TableRouter)
 app.use('/orders', OrderRouter)
 app.use('/', UserRouter)
+const DB_CONNECTION_STR =
+  'mongodb+srv://nguyenthanhnhonabc:nhon@app.2jwix0f.mongodb.net/?retryWrites=true&w=majority&appName=app'
+const options = {
+  definition: {
+    openapi: '3.1.0',
+    info: {
+      title: 'LogRocket Express API with Swagger',
+      version: '0.1.0',
+      description: 'This is a simple CRUD API application made with Express and documented with Swagger',
+      license: {
+        name: 'MIT',
+        url: 'https://spdx.org/licenses/MIT.html'
+      },
+      contact: {
+        name: 'LogRocket',
+        url: 'https://logrocket.com',
+        email: 'info@email.com'
+      }
+    },
+    servers: [
+      {
+        url: 'http://localhost:3000'
+      }
+    ]
+  },
+  apis: ['./src/routes/*.js']
+}
 
-const DB_CONNECTION_STR = 'mongodb://localhost:27017/restaurant'
-async function start() {
+const specs = swaggerJsdoc(options)
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, { explorer: true }))
+const start = async () => {
   try {
     console.log('Start connecting...')
     await mongoose.connect(DB_CONNECTION_STR)
