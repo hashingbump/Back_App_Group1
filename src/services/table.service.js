@@ -7,6 +7,11 @@ import mongoose, { Types } from 'mongoose'
 const getAllTable = async () => {
   return await TableModel.aggregate([
     {
+      $match: {
+        deletedAt: null
+      }
+    },
+    {
       $lookup: {
         from: 'restaurants',
         localField: 'restaurantId',
@@ -35,7 +40,8 @@ const getTableById = async (id) => {
   return await TableModel.aggregate([
     {
       $match: {
-        _id: Types.ObjectId(id)
+        _id: mongoose.Types.ObjectId(id),
+        deletedAt: null
       }
     },
     {
@@ -62,17 +68,32 @@ const getTableById = async (id) => {
     }
   ])
 }
-
-const createTable = async (data) => {
-  return await TableModel.create(data)
+// _id: ObjectId,
+//   tableNumber: { type: Number, required: true },
+//   status: { type: Boolean, required: true },
+//   restaurantID: { type: ObjectId, ref: 'Restaurants', required: true },
+//   createdAt: { type: Date, required: true, default: Date.now },
+//   updatedAt: { type: Date, required: true, default: Date.now },
+//   deletedAt: { type: Date, default: null }
+const createTable = async ({ tableNumber, restaurantID }) => {
+  return await TableModel.create({ tableNumber, status: true, restaurantID })
 }
 
-const updateTable = async (id, data) => {
-  return await TableModel.findByIdAndUpdate(id, data)
+const updateTable = async (id, { tableNumber, status, restaurantID }) => {
+  return await TableModel.findByIdAndUpdate(mongoose.Types.ObjectId(id), {
+    tableNumber,
+    status,
+    restaurantID,
+    updatedAt: Date.now()
+  })
 }
 
 const deleteTable = async (id) => {
-  return await TableModel.findByIdAndDelete(id)
+  const table = await TableModel.findById(id, { deletedAt: null })
+  if (!table) {
+    throw new NotFoundError('Table not found')
+  }
+  return await TableModel.findByIdAndUpdate(mongoose.Types.ObjectId(id), { deletedAt: Date.now() })
 }
 
 export const TableService = {

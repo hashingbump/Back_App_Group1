@@ -1,3 +1,4 @@
+import { HttpStatusCode } from 'axios'
 import { Response } from '../dto/out/response.js'
 import { BadRequestError } from '../errors/badRequest.error.js'
 import { NotFoundError } from '../errors/notFound.error.js'
@@ -7,7 +8,7 @@ import { CommonUtils } from '../utils/common.util.js'
 const getAllRestaurant = async (req, res) => {
   try {
     const data = await RestaurantService.getAllRestaurant()
-    res.json(data)
+    Response(200, 'Success', data).resposeHandler(res)
   } catch (error) {
     res.status(error.statusCode).json({ error: error.message })
   }
@@ -15,48 +16,43 @@ const getAllRestaurant = async (req, res) => {
 
 const getRestaurantById = async (req, res) => {
   try {
-    const id = req.params.id
-    const data = await RestaurantService.getRestaurantById(id)
-    res.json(Response(200, 'Success', data))
+    const data = await RestaurantService.getRestaurantById(req.params.id)
+    Response(200, 'Success', data).resposeHandler(res)
   } catch (error) {
-    res.status(error.statusCode).json({ error: error.message })
+    Response(error.statusCode, error.message, null).resposeHandler(res)
   }
 }
 
 const createRestaurant = async (req, res) => {
   try {
-    const data = req.body
-    if (CommonUtils.checkNullOrUndefined(data)) {
+    if (CommonUtils.checkNullOrUndefined(req.body)) {
       throw new BadRequestError('Data is required')
     }
-    const result = await RestaurantService.createRestaurant(data)
-    res.json(result)
+    const result = await RestaurantService.createRestaurant(...req.body)
+    Response(201, 'Success', result).resposeHandler(res)
   } catch (error) {
-    res.status(error.statusCode).json({ error: error.message })
+    Response(error.statusCode, error.message, null).resposeHandler(res)
   }
 }
 
 const updateRestaurant = async (req, res) => {
   try {
-    const id = req.params.id
-    const data = req.body
-    if (CommonUtils.checkNullOrUndefined(data)) {
+    if (CommonUtils.checkNullOrUndefined(req.body)) {
       throw new BadRequestError('Data is required')
     }
-    const result = await RestaurantService.updateRestaurant(id, data)
-    res.json(result)
+    const result = await RestaurantService.updateRestaurant(req.params.id, ...req.body)
+    Response(200, 'Success', result).resposeHandler(res)
   } catch (error) {
-    res.status(error.statusCode).json({ error: error.message })
+    Response(error.statusCode, error.message, null).resposeHandler(res)
   }
 }
 
 const deleteRestaurant = async (req, res) => {
   try {
-    const id = req.params.id
-    const result = await RestaurantService.deleteRestaurant(id)
-    res.json(result)
+    const result = await RestaurantService.deleteRestaurant(req.params.id)
+    Response(HttpStatusCode.Accepted, 'Success', result).resposeHandler(res)
   } catch (error) {
-    res.status(error.statusCode).json({ error: error.message })
+    Response(error.statusCode, error.message, null).resposeHandler(res)
   }
 }
 
