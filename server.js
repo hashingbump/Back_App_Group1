@@ -18,6 +18,8 @@ import { DATABASE_CONFIG } from './src/configs/database.config.js'
 import { requireApiKey } from './src/middlewares/useApiKey.middleware.js'
 import swaggerUi from 'swagger-ui-express'
 import swaggerJsdoc from 'swagger-jsdoc'
+import { SWAGGER_OPTION } from './src/configs/swagger.config.js'
+import MenuRouter from './src/routes/menu.route.js'
 const app = express()
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
@@ -35,50 +37,25 @@ app.use(
 app.use(morgan('dev'))
 app.use(morgan('combined'))
 
+app.use(json())
+app.use(express.static('public'))
+app.use(logRequestTime)
+app.use(logRequestMethod)
+app.use(cookieParser())
+app.use('/logs', requireApiKey, LogRouter)
+app.use('/restaurants', RestaurantRouter)
+app.use('/tables', TableRouter)
+app.use('/orders', OrderRouter)
+app.use('/menus', MenuRouter)
+app.use('/', UserRouter)
+const DB_CONNECTION_STR = DATABASE_CONFIG.MONGO_DATABASE || 'mongodb://localhost:27017/restaurant'
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 100000,
   standardHeaders: 'draft-7',
   legacyHeaders: false
 })
-
-app.use(json())
-app.use(express.static('public'))
-app.use(logRequestTime)
-app.use(logRequestMethod)
-app.use('/restaurants', RestaurantRouter)
-app.use('/tables', TableRouter)
-app.use('/orders', OrderRouter)
-app.use('/', UserRouter)
-const DB_CONNECTION_STR =
-  'mongodb+srv://nguyenthanhnhonabc:nhon@app.2jwix0f.mongodb.net/?retryWrites=true&w=majority&appName=app'
-const options = {
-  definition: {
-    openapi: '3.1.0',
-    info: {
-      title: 'LogRocket Express API with Swagger',
-      version: '0.1.0',
-      description: 'This is a simple CRUD API application made with Express and documented with Swagger',
-      license: {
-        name: 'MIT',
-        url: 'https://spdx.org/licenses/MIT.html'
-      },
-      contact: {
-        name: 'LogRocket',
-        url: 'https://logrocket.com',
-        email: 'info@email.com'
-      }
-    },
-    servers: [
-      {
-        url: 'http://localhost:3000'
-      }
-    ]
-  },
-  apis: ['./src/routes/*.js']
-}
-
-const specs = swaggerJsdoc(options)
+const specs = swaggerJsdoc(SWAGGER_OPTION)
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, { explorer: true }))
 const start = async () => {
   try {

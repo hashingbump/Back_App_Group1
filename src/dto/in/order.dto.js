@@ -1,14 +1,6 @@
 import { body, param } from 'express-validator'
 import { PAYMENT_STATUS } from '../../constants/payment_status.constant.js'
 import { PAYMENT_METHOD } from '../../constants/payment_method.constant.js'
-// userId: { type: ObjectId, ref: 'Users', required: true },
-//     tableId: { type: [ObjectId], ref: 'Tables', required: true },
-//     name: { type: String, required: true },
-//     phone_number: { type: String, required: true },
-//     payment: { type: String, require: true },
-//     menu: { type: [String], required: true },
-//     status: { type: Boolean, required: true },
-//     checkin: { type: Date, required: true },
 const OrderGetAllValidation = []
 const OrderGetByIdValidation = [
   param('id').notEmpty().withMessage('Thiếu id').isString().withMessage('Id phải là chuỗi')
