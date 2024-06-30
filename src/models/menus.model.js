@@ -17,5 +17,5 @@ const menuItemSchema = new mongoose.Schema(
   { timestamps: true }
 )
 
-const MenuItem = mongoose.model('MenuItem', menuItemSchema)
+const MenuItem = mongoose.model('Menus', menuItemSchema)
 export default MenuItem
