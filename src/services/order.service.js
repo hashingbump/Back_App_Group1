@@ -5,7 +5,7 @@ import { NotFoundError } from '../errors/notFound.error.js'
 import { OrderModel } from '../models/orders.model.js'
 import mongoose, { Types } from 'mongoose'
 import { BadRequestError } from '../errors/badRequest.error.js'
-import { OrderDto } from '../dto/out/order.dto.js'
+import { OrderDto } from '../dto/response/order.dto.js'
 
 const getAllOrder = async () => {
   const orders = await OrderModel.aggregate([

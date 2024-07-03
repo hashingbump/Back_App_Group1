@@ -17,6 +17,7 @@ const register = async ({ username, password, phone, email, name }) => {
   if (await UserModel.findOne({ username })) {
     throw new BadRequestError('Account existed')
   }
+  console.log(username, password, phone, email, name)
   const user = new UserModel({
     _id: new Types.ObjectId(),
     username,

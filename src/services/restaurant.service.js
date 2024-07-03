@@ -3,7 +3,7 @@ import { CommonUtils } from '../utils/common.util.js'
 import { NotFoundError } from '../errors/notFound.error.js'
 import { RestaurantModel } from '../models/restaurants.model.js'
 import mongoose from 'mongoose'
-import { RestaurantDto } from '../dto/out/restaurant.dto.js'
+import { RestaurantDto } from '../dto/response/restaurant.dto.js'
 // name: { type: String, required: true },
 //     address: { type: String, required: true },
 //     openTime: { type: Number, required: true },
