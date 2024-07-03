@@ -1,5 +1,5 @@
 import { HttpStatusCode } from 'axios'
-import { Response } from '../dto/out/response.js'
+import { Response } from '../dto/response/response.js'
 import { LogService } from '../services/log.service.js'
 
 const getDataOnDate = async (req, res, next) => {

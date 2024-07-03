@@ -1,5 +1,5 @@
 import { HttpStatusCode } from 'axios'
-import { Response } from '../dto/out/response.js'
+import { Response } from '../dto/response/response.js'
 import { BadRequestError } from '../errors/badRequest.error.js'
 import { OrderService } from '../services/order.service.js'
 import { CommonUtils } from '../utils/common.util.js'

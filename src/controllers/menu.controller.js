@@ -1,4 +1,4 @@
-import { Response } from '../dto/out/response.js'
+import { Response } from '../dto/response/response.js'
 import MenuItem from '../models/menus.model.js'
 
 
