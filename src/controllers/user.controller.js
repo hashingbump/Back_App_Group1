@@ -1,44 +1,65 @@
+import { Response } from '../dto/response/response.js'
 import { BadRequestError } from '../errors/badRequest.error.js'
-import { NotFoundError } from '../errors/notFound.error.js'
-import { createApiKey } from '../middlewares/useApiKey.middleware.js'
 import { UserService } from '../services/user.service.js'
 import { CommonUtils } from '../utils/common.util.js'
 
 const login = async (req, res, next) => {
   try {
-    const { username, password } = req.body
-    if (CommonUtils.checkNullOrUndefined(username)) {
-      throw new BadRequestError('Username is empty')
+    if (CommonUtils.checkNullOrUndefined(req.body)) {
+      throw new BadRequestError('Username is required')
     }
-    if (CommonUtils.checkNullOrUndefined(password)) {
-      throw new BadRequestError('Password is empty')
-    }
-    const result = await UserService.login(username, password)
-    if (CommonUtils.checkNullOrUndefined(result)) {
-      throw new NotFoundError('Username or password is incorrect')
-    }
-    res.status(200).json({ api_token: createApiKey(result._id) })
+    const result = await UserService.login(req.body)
+    new Response(200, 'Login success', result).responseHandler(res)
   } catch (error) {
-    res.status(error.statusCode).json({ error: error.message })
+    new Response(error.statusCode || 500, error.message, null).responseHandler(res)
   }
 }
+
 const register = async (req, res, next) => {
   try {
-    const { username, password, mqttUsername, aioKey } = req.body
-    if (CommonUtils.checkNullOrUndefined(username)) {
-      throw new BadRequestError('Username is empty')
-    } else if (CommonUtils.checkNullOrUndefined(password)) {
-      throw new BadRequestError('Password is empty')
-    } else if (CommonUtils.checkNullOrUndefined(mqttUsername)) {
-      throw new BadRequestError('Mqtt is empty')
-    } else if (CommonUtils.checkNullOrUndefined(aioKey)) {
-      throw new BadRequestError('Key is empty')
+    if (CommonUtils.checkNullOrUndefined(req.body)) {
+      throw new BadRequestError('Username is required')
     }
-    await UserService.register(username, password, mqttUsername, aioKey)
-    res.status(200).json({ data: 'Register successfully' })
+    await UserService.register(req.body)
+    new Response(201, 'Register success', null).responseHandler(res)
   } catch (error) {
-    console.log(error)
-    res.status(error.statusCode).json({ error: error.message })
+    new Response(500, error.message, null).responseHandler(res)
   }
 }
-export const UserController = { login, register }
+
+const getUserById = async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const user = await UserService.getUserById(id)
+    if (!user) {
+      throw new BadRequestError('User not found')
+    }
+    new Response(200, 'User fetched successfully', user).responseHandler(res)
+  } catch (error) {
+    new Response(error.statusCode || 500, error.message, null).responseHandler(res)
+  }
+}
+
+const getAllUsers = async (req, res, next) => {
+  try {
+    const users = await UserService.getAllUsers()
+    new Response(200, 'Users fetched successfully', users).responseHandler(res)
+  } catch (error) {
+    new Response(500, error.message, null).responseHandler(res)
+  }
+}
+
+const deleteUser = async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const user = await UserService.deleteUser(id)
+    if (!user) {
+      throw new BadRequestError('User not found')
+    }
+    new Response(200, 'User deleted successfully', null).responseHandler(res)
+  } catch (error) {
+    new Response(error.statusCode || 500, error.message, null).responseHandler(res)
+  }
+}
+
+export const UserController = { login, register, getUserById, getAllUsers, deleteUser }

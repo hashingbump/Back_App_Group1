@@ -15,6 +15,10 @@ const getDataOnDate = async (date, id) => {
     }
   }).exec()
 }
+const createLog = async (data) => {
+  return await LogModel.create(data)
+}
 export const LogService = {
-  getDataOnDate
+  getDataOnDate,
+  createLog
 }

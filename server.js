@@ -1,4 +1,5 @@
 import express, { json } from 'express'
+import { v2 as cloudinary } from 'cloudinary'
 import morgan from 'morgan'
 import cors from 'cors'
 import bodyParser from 'body-parser'
@@ -16,13 +17,17 @@ import { logRequestTime } from './src/middlewares/logRequestTime.middleware.js'
 import { logRequestMethod } from './src/middlewares/logRequestMethod.middleware.js'
 import { DATABASE_CONFIG } from './src/configs/database.config.js'
 import { requireApiKey } from './src/middlewares/useApiKey.middleware.js'
-
-import MenuRouter from './routes/menuItem.js'
+import swaggerUi from 'swagger-ui-express'
+import swaggerJsdoc from 'swagger-jsdoc'
+import { SWAGGER_OPTION } from './src/configs/swagger.config.js'
+import MenuRouter from './src/routes/menu.route.js'
+import { cloudinaryConfig } from './src/configs/cloudinary.config.js'
 const app = express()
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 // const server = createServer(app)
 // const io = new Server(server)
+
 const port = 7000
 app.use(
   cors({
@@ -34,42 +39,41 @@ app.use(
 app.use(morgan('dev'))
 app.use(morgan('combined'))
 
+app.use(json())
+app.use(express.static('public'))
+app.use(logRequestTime)
+app.use(logRequestMethod)
+app.use(cookieParser())
+app.use('/logs', requireApiKey, LogRouter)
+app.use('/restaurants', RestaurantRouter)
+app.use('/tables', TableRouter)
+app.use('/orders', OrderRouter)
+app.use('/menus', MenuRouter)
+app.use('/', UserRouter)
+// const DB_CONNECTION_STR = DATABASE_CONFIG.MONGO_DATABASE || 'mongodb://localhost:27017/restaurant'
+const DB_CONNECTION_STR =
+  'mongodb+srv://nguyenthanhnhonabc:nhon@app.2jwix0f.mongodb.net/?retryWrites=true&w=majority&appName=app'
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 100000,
   standardHeaders: 'draft-7',
   legacyHeaders: false
 })
-
-app.use(json())
-app.use(express.static('public'))
-app.use(logRequestTime)
-app.use(logRequestMethod)
-
-// Route init
-app.use('/logs', requireApiKey, LogRouter)
-app.use('/restaurants', RestaurantRouter)
-app.use('/tables', TableRouter)
-app.use('/orders', OrderRouter)
-app.use('/menu', MenuRouter)
-app.use('/', UserRouter)
-
-async function main() {
+cloudinary.config = cloudinaryConfig
+const specs = swaggerJsdoc(SWAGGER_OPTION)
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, { explorer: true }))
+const start = async () => {
   try {
-    console.log('chuẩn bị connect tới DB')
-
-    await mongoose.connect(
-      'mongodb+srv://nguyenthanhnhonabc:nhon@app.2jwix0f.mongodb.net/?retryWrites=true&w=majority&appName=app'
-    )
-
-    console.log('connect tới database thành công')
-    console.log('chuẩn bị start server')
+    console.log('Start connecting...')
+    await mongoose.connect(DB_CONNECTION_STR)
+    console.log('Connect success')
 
     app.listen(port, () => {
-      console.log(`Server start thành công `)
+      console.log(`Listening at port ${port}`)
     })
   } catch (error) {
-    console.log('error connect to database with error: ' + error.message)
+    console.log('Error connect to database with error: ' + error.message)
   }
 }
-main()
+
+start()

@@ -1,6 +1,7 @@
 import dotenv from 'dotenv'
-dotenv.config({ path: './.env' })
+dotenv.config({ path: '../.env' })
 export const DATABASE_CONFIG = {
-  // username: 'L01_CNPM_10',
-  // password: 'zREWlyXoHAtT6U3k'
+  MONGO_DATABASE:
+    process.env.MONGODB_URI |
+    'mongodb+srv://nguyenthanhnhonabc:nhon@app.2jwix0f.mongodb.net/?retryWrites=true&w=majority&appName=app'
 }
