@@ -3,10 +3,10 @@ const ObjectId = Schema.ObjectId
 
 const User = new mongoose.Schema({
   _id: ObjectId,
-  username: { type: String, required: true },
+  username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   phone: { type: String, required: true },
-  email: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
   name: { type: String, required: true },
   role: { type: String, required: true },
   salt: { type: String, required: true },

@@ -44,12 +44,14 @@ app.use(express.static('public'))
 app.use(logRequestTime)
 app.use(logRequestMethod)
 app.use(cookieParser())
+
 app.use('/logs', requireApiKey, LogRouter)
 app.use('/restaurants', RestaurantRouter)
 app.use('/tables', TableRouter)
 app.use('/orders', OrderRouter)
 app.use('/menus', MenuRouter)
 app.use('/', UserRouter)
+
 const DB_CONNECTION_STR = DATABASE_CONFIG.MONGO_DATABASE || 'mongodb://localhost:27017/restaurant'
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,

@@ -40,7 +40,7 @@ const updateOrder = async (req, res) => {
       throw new BadRequestError('Data is required')
     }
     const result = await OrderService.updateOrder(req.params.id, ...req.body)
-    Response(200, 'success', result).resposeHandler(res)
+    new Response(200, 'success', result).resposeHandler(res)
   } catch (error) {
     Response(error.statusCode, error.message, null).resposeHandler(res)
   }

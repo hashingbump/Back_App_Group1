@@ -13,6 +13,7 @@ const Order = new Schema(
     menu: { type: [ObjectId], required: true },
     status: { type: String, required: true, enum: PAYMENT_STATUS },
     checkin: { type: Date, required: true },
+    checkout: { type: Date, required: true, default: null },
     createdAt: { type: Date, required: true, default: Date.now },
     updatedAt: { type: Date, required: true, default: Date.now },
     deletedAt: { type: Date, default: null }
